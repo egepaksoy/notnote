@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Not satırları -->
+    <path
+        android:pathData="M36,42L72,42M36,54L64,54M36,66L54,66"
+        android:strokeWidth="5"
+        android:strokeColor="#FFEDEAE2"
+        android:strokeLineCap="round" />
+    <!-- Komut noktası -->
+    <path
+        android:fillColor="#FF7FB38A"
+        android:pathData="M68,66m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+</vector>

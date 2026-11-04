@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#FF161917</color>
+    <color name="input_bg">#FF1E231F</color>
+    <color name="input_border">#FF2B312C</color>
+    <color name="send_bg">#FF2C322D</color>
+    <color name="text">#FFEDEAE2</color>
+    <color name="muted">#FF8C918C</color>
+    <color name="widget_card">#FF1C211D</color>
+    <color name="widget_title">#FFD9D2C0</color>
+    <color name="widget_divider">#FF3A403B</color>
+</resources>
