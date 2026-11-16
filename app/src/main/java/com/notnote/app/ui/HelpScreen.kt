@@ -41,7 +41,7 @@ fun HelpScreen(onBack: () -> Unit) {
                 Text(
                     "Satıra @ ile başlarsan not değil komut olur. @ yazınca öneriler çıkar, " +
                         "kişi ve uygulama adlarını da önerir.\n\n" +
-                        "Nota dokun: düzenle · Sola kaydır: sil",
+                        "Nota dokun: düzenle · Sola kaydır: sil · Basılı tut: sabitle, hatırlatıcı ekle",
                     color = C.Muted,
                     fontSize = 14.sp,
                     lineHeight = 20.sp,

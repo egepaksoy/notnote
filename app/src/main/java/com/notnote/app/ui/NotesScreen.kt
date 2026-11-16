@@ -1,7 +1,10 @@
 package com.notnote.app.ui
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.speech.RecognizerIntent
 import androidx.activity.compose.BackHandler
@@ -263,6 +266,8 @@ fun NotesScreen(
                                         ctx.startActivity(Intent.createChooser(send, null))
                                     },
                                     onDelete = { vm.delete(note) },
+                                    onRemind = { pickDateTime(ctx, note.scheduledAt) { vm.setReminder(note, it) } },
+                                    onClearReminder = { vm.clearReminder(note) },
                                 )
                             }
                             HorizontalDivider(color = C.Divider, thickness = 1.dp)
@@ -420,8 +425,11 @@ private fun NoteRow(
     onCopy: () -> Unit,
     onShare: () -> Unit,
     onDelete: () -> Unit,
+    onRemind: () -> Unit,
+    onClearReminder: () -> Unit,
 ) {
     var menu by remember { mutableStateOf(false) }
+    val hasReminder = !note.isCommand && note.status == NoteStatus.SCHEDULED
     Box {
         Row(
             Modifier
@@ -453,6 +461,13 @@ private fun NoteRow(
                         fontSize = 13.sp,
                         modifier = Modifier.padding(top = 6.dp),
                     )
+                } else if (hasReminder) {
+                    Text(
+                        "⏰ ${formatWhen(note.scheduledAt)} hatırlatılacak",
+                        color = C.Wait,
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(top = 6.dp),
+                    )
                 }
             }
             if (note.pinned) {
@@ -461,6 +476,10 @@ private fun NoteRow(
         }
         DropdownMenu(expanded = menu, onDismissRequest = { menu = false }, containerColor = C.SendBg) {
             MenuItem(if (note.pinned) "Sabitlemeyi kaldır" else "Üste sabitle") { menu = false; onPin() }
+            if (!note.isCommand) {
+                MenuItem(if (hasReminder) "Hatırlatıcıyı değiştir" else "Hatırlatıcı ekle") { menu = false; onRemind() }
+                if (hasReminder) MenuItem("Hatırlatıcıyı kaldır") { menu = false; onClearReminder() }
+            }
             MenuItem("Kopyala") { menu = false; onCopy() }
             MenuItem("Paylaş") { menu = false; onShare() }
             MenuItem("Sil", C.Fail) { menu = false; onDelete() }
@@ -491,6 +510,26 @@ private fun statusLine(note: Note): String {
         NoteStatus.NONE -> null
     }
     return listOfNotNull(type?.label, note.targetName, state).joinToString(" · ")
+}
+
+/** Önce gün, sonra saat sorar; ikisi de seçilirse zamanı verir. Varsayılan: kurulu zaman ya da bir saat sonrası. */
+private fun pickDateTime(ctx: Context, initial: Long?, onPicked: (Long) -> Unit) {
+    val cal = Calendar.getInstance().apply {
+        timeInMillis = initial ?: (System.currentTimeMillis() + 60 * 60 * 1000L)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    val theme = android.R.style.Theme_DeviceDefault_Dialog_Alert
+    DatePickerDialog(ctx, theme, { _, y, m, d ->
+        cal.set(y, m, d)
+        TimePickerDialog(ctx, theme, { _, h, min ->
+            cal.set(Calendar.HOUR_OF_DAY, h)
+            cal.set(Calendar.MINUTE, min)
+            onPicked(cal.timeInMillis)
+        }, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
+    }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).apply {
+        datePicker.minDate = System.currentTimeMillis() - 1000
+    }.show()
 }
 
 private fun formatWhen(at: Long?): String {

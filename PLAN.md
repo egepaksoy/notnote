@@ -1,6 +1,6 @@
 # notnote — Proje Planı
 
-> Durum: **Faz 1–4 tamamlandı** (sürüm 1.2, `apk/notnote.apk`) · Son güncelleme: 2026-11-04
+> Durum: **Faz 1–4 tamamlandı** (sürüm 1.3, `apk/notnote.apk`) · Son güncelleme: 2026-11-16
 >
 > 1.1 ile gelenler: Tiny Notes tarzı not listesi widget'ı, sesle yazma (🎤), başka uygulamalardan
 > "Paylaş → notnote", uzun basma menüsü (üste sabitle / kopyala / paylaş / sil), menüden arama,

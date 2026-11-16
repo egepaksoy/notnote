@@ -1,6 +1,8 @@
 package com.notnote.app.ui
 
+import android.Manifest
 import android.app.Application
+import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -206,6 +208,24 @@ class NotesViewModel(app: Application) : AndroidViewModel(app) {
     fun cancelScheduled(note: Note) {
         Scheduler.cancel(notnote, note.id)
         repo.setStatus(note.id, NoteStatus.CANCELLED, "iptal edildi")
+    }
+
+    /** Sıradan nota hatırlatıcı kurar; zamanı gelince notun metni bildirim olarak çıkar. */
+    fun setReminder(note: Note, at: Long) {
+        if (at <= System.currentTimeMillis()) {
+            message("Geçmiş bir zaman seçildi")
+            return
+        }
+        repo.update(note.copy(status = NoteStatus.SCHEDULED, scheduledAt = at, detail = null))
+        Scheduler.schedule(notnote, note.id, at)
+        val canNotify = notnote.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+        message(if (canNotify) "Hatırlatıcı kuruldu" else "Hatırlatıcı kuruldu ama bildirim izni kapalı — Menü → İzinler")
+    }
+
+    fun clearReminder(note: Note) {
+        Scheduler.cancel(notnote, note.id)
+        repo.update(note.copy(status = NoteStatus.NONE, scheduledAt = null, detail = null))
+        message("Hatırlatıcı kaldırıldı")
     }
 
     /** Komut notunu yazı kutusuna geri koyar: düzenleyip tekrar gönderilebilir. */

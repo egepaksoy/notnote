@@ -19,6 +19,12 @@ class AlarmReceiver : BroadcastReceiver() {
         val noteId = intent.getLongExtra(EXTRA_NOTE_ID, -1L)
         val note = app.repository.get(noteId) ?: return
         if (note.status != NoteStatus.SCHEDULED) return
+        if (!note.isCommand) {
+            // Sıradan nota kurulan hatırlatıcı: notun kendisini hatırlat, sonra notu eski haline döndür.
+            Notifications.reminder(ctx, noteId, note.text)
+            app.repository.update(note.copy(status = NoteStatus.NONE, scheduledAt = null, detail = null))
+            return
+        }
         val cmd = (CommandParser.parse(note.text) as? ParseResult.Ok)?.command ?: return
 
         when (cmd.type) {

@@ -30,14 +30,19 @@ object Backup {
             val o = arr.getJSONObject(i)
             val status = runCatching { NoteStatus.valueOf(o.optString("status", "NONE")) }
                 .getOrDefault(NoteStatus.NONE)
+            val isCommand = o.optBoolean("isCommand", false)
             Note(
                 text = o.getString("text"),
                 createdAt = o.optLong("createdAt", System.currentTimeMillis()),
                 done = o.optBoolean("done", false),
                 pinned = o.optBoolean("pinned", false),
-                isCommand = o.optBoolean("isCommand", false),
-                // Planlanmış işler yedekten geri gelince tekrar çalışmasın.
-                status = if (status == NoteStatus.SCHEDULED || status == NoteStatus.RUNNING) NoteStatus.CANCELLED else status,
+                isCommand = isCommand,
+                // Planlanmış işler yedekten geri gelince tekrar çalışmasın; sıradan notun hatırlatıcısı da düşer.
+                status = when {
+                    !isCommand -> NoteStatus.NONE
+                    status == NoteStatus.SCHEDULED || status == NoteStatus.RUNNING -> NoteStatus.CANCELLED
+                    else -> status
+                },
                 detail = o.optString("detail").ifEmpty { null },
                 targetName = o.optString("targetName").ifEmpty { null },
                 targetNumber = o.optString("targetNumber").ifEmpty { null },
